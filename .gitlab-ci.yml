@@ -1,0 +1,63 @@
+stages:
+  - docker
+  - checkout
+  - test
+
+variables:
+  BITBAKE_IMAGE: ${CI_REGISTRY_IMAGE}:ci-${CI_COMMIT_REF_SLUG}-bitbake
+  BITBAKE_CHECKOUT_IMAGE: ${CI_REGISTRY_IMAGE}:ci-${CI_COMMIT_REF_SLUG}-checkout
+
+include:
+  - project: 'olp/edge/ota/connect/client/meta-updater'
+    ref: 'master'
+    file: 'scripts/ci/gitlab/docker.yml'
+  - project: 'olp/edge/ota/connect/client/meta-updater'
+    ref: 'master'
+    file: 'scripts/ci/gitlab/checkout.yml'
+  - project: 'olp/edge/ota/connect/client/meta-updater'
+    ref: 'master'
+    file: 'scripts/ci/gitlab/tests.yml'
+
+Docker setup:
+  extends: .bb_docker_local
+
+  stage: docker
+  variables:
+    BITBKAE_IMAGE_MASTER: ${CI_REGISTRY_IMAGE}:ci-master-bitbake
+    BITBAKE_CHECKOUT_IMAGE_MASTER: ${CI_REGISTRY_IMAGE}:ci-master-checkout
+  except:
+    - pushes
+
+Checkout:
+  extends: .bb_checkout
+
+  stage: checkout
+  variables:
+    MANIFEST: master
+    CURRENT_PROJECT: meta-updater-qemux86-64
+  except:
+    - pushes
+
+Build core-image-minimal:
+  extends: .bitbake
+
+  stage: test
+  variables:
+    TEST_BUILD_DIR: 'build-core-image-minimal'
+    BITBAKE_TARGETS: 'core-image-minimal'
+  artifacts:
+    name: "core-image-minimal_$CI_COMMIT_REF_SLUG"
+    paths:
+      - $TEST_BUILD_DIR/tmp/deploy/images/*/core-image-minimal*
+  except:
+    - pushes
+
+Oe-selftest qemux86_64:
+  extends: .oe-selftest
+
+  stage: test
+  variables:
+    TEST_BUILD_DIR: 'build-oe-qemux86_64'
+    OE_SELFTESTS: 'updater_native updater_qemux86_64'
+  except:
+    - pushes
