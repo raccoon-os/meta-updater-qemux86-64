@@ -4,8 +4,8 @@ stages:
   - test
 
 variables:
-  BITBAKE_IMAGE: ${CI_REGISTRY_IMAGE}:ci-${CI_COMMIT_REF_SLUG}-bitbake
-  BITBAKE_CHECKOUT_IMAGE: ${CI_REGISTRY_IMAGE}:ci-${CI_COMMIT_REF_SLUG}-checkout
+  BITBAKE_IMAGE: ${METAUPDATER_REGISTRY_IMAGE}:ci-master-bitbake
+  BITBAKE_CHECKOUT_IMAGE: ${METAUPDATER_REGISTRY_IMAGE}:ci-master-checkout
 
 include:
   - project: 'olp/edge/ota/connect/client/meta-updater'
@@ -19,12 +19,9 @@ include:
     file: 'scripts/ci/gitlab/tests.yml'
 
 Docker setup:
-  extends: .bb_docker_local
+  extends: .bb_docker_remote
 
   stage: docker
-  variables:
-    BITBKAE_IMAGE_MASTER: ${CI_REGISTRY_IMAGE}:ci-master-bitbake
-    BITBAKE_CHECKOUT_IMAGE_MASTER: ${CI_REGISTRY_IMAGE}:ci-master-checkout
   except:
     - pushes
 
@@ -38,17 +35,13 @@ Checkout:
   except:
     - pushes
 
-Build core-image-minimal:
+Build core-image-minimal (qemu):
   extends: .bitbake
 
   stage: test
   variables:
-    TEST_BUILD_DIR: 'build-core-image-minimal'
+    TEST_BUILD_DIR: 'build-core-image-minimal-qemux86_64'
     BITBAKE_TARGETS: 'core-image-minimal'
-  artifacts:
-    name: "core-image-minimal_$CI_COMMIT_REF_SLUG"
-    paths:
-      - $TEST_BUILD_DIR/tmp/deploy/images/*/core-image-minimal*
   except:
     - pushes
 
