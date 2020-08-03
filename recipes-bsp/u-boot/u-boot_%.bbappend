@@ -4,6 +4,7 @@ DEPENDS += "swig-native"
 
 SRC_URI +=" \
             file://0001-Set-up-environment-for-OSTree-integration.patch \
+            file://0001-Revert-ide-remove-duplicate-defines-form-include-ata.patch \
           "
 
 # fix after default security flags in poky
