@@ -8,7 +8,7 @@ SRC_URI +=" \
           "
 
 # fix after default security flags in poky
-TOOLCHAIN_OPTIONS_append = "${SECURITY_NOPIE_CFLAGS}"
+TOOLCHAIN_OPTIONS_append_qemux86-64 = " ${SECURITY_NOPIE_CFLAGS}"
 
 do_compile_prepend_qemux86-64 () {
   export BUILD_ROM=y
