@@ -1,0 +1,66 @@
+From 0858740a9c144610d58000e1f61c0f72d73daabe Mon Sep 17 00:00:00 2001
+From: Laurent Bonnans <laurent.bonnans@here.com>
+Date: Fri, 20 Jul 2018 16:09:20 +0200
+Subject: [PATCH] qemu-x86.h: Set up environment for OSTree integration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Includes fix for u-boot 2018.07 (explicit IDE initialization)
+
+Upstream-Status: Inappropriate [ota-specific]
+
+Co-Authored-By: Anton Gerasimov <anton@advancedtelematic.com>
+Co-Authored-By: Leon Anavi <leon.anavi@konsulko.com>
+Co-Authored-By: José Manuel Díez <j.diezlopez@tu-berlin.de>
+Signed-off-by: Laurent Bonnans <laurent.bonnans@here.com>
+Signed-off-by: José Manuel Díez <j.diezlopez@tu-berlin.de>
+
+---
+ board/emulation/qemu-x86/qemu-x86.env |  5 +++++
+ include/configs/qemu-x86.h            | 21 +++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/board/emulation/qemu-x86/qemu-x86.env b/board/emulation/qemu-x86/qemu-x86.env
+index adcc1c53bd..5fcedd93d1 100644
+--- a/board/emulation/qemu-x86/qemu-x86.env
++++ b/board/emulation/qemu-x86/qemu-x86.env
+@@ -4,3 +4,8 @@
+  */
+ 
+ #include <env/x86.env>
++
++kernel_image=/bzImage
++ramdisk_image=/initrd
++ramdiskaddr=0x4000000
++loadenv=if ext2load ide 0 $loadaddr /boot/loader/uEnv.txt; then env import -t $loadaddr $filesize; fi;
+diff --git a/include/configs/qemu-x86.h b/include/configs/qemu-x86.h
+index 9b0f5cedcd..6aee7c3e61 100644
+--- a/include/configs/qemu-x86.h
++++ b/include/configs/qemu-x86.h
+@@ -2,3 +2,24 @@
+ /*
+  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+  */
++
++#ifndef __CONFIG_H
++#define __CONFIG_H
++
++#define CONFIG_SPL_BOARD_LOAD_IMAGE
++
++#undef CONFIG_BOOTARGS
++
++#define CONFIG_BOOTARGS "root=/dev/vda2 console=ttyS0"
++
++#undef CONFIG_BOOTDELAY
++#define CONFIG_BOOTDELAY 3
++
++#undef CONFIG_BOOTCOMMAND
++#define CONFIG_BOOTCOMMAND "ide reset; run loadenv;" \
++			   "setenv bootargs $bootargs\" console=ttyS0 root=/dev/ram0 rw rootfstype=ext4 rootwait rootdelay=2 ostree_root=/dev/vda ramdisk_size=16384 \"; " \
++			   "ext2load ide 0 $loadaddr \"/boot\"$kernel_image;" \
++			   "ext2load ide 0 $ramdiskaddr \"/boot\"$ramdisk_image;" \
++			   "zboot $loadaddr - $ramdiskaddr $filesize"
++
++ #endif	/* __CONFIG_H */
+\ No newline at end of file

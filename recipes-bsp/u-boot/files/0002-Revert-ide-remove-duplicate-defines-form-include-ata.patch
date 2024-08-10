@@ -1,4 +1,4 @@
-From 2c14e6c38271418f7ff9d8474e11406d85f9e845 Mon Sep 17 00:00:00 2001
+From a1e2e182042c68ea87f51ff8bd2f2ef3c38803da Mon Sep 17 00:00:00 2001
 From: Patrick Vacek <patrickvacek@gmail.com>
 Date: Thu, 30 Jul 2020 13:10:51 +0200
 Subject: [PATCH] Revert "ide: remove duplicate defines form include/ata.h"
@@ -8,15 +8,17 @@ This reverts commit 04571bec56a53c846f072fb3bc7543586f10ee93.
 Supposedly, the defines that were removed were redundant, but the
 default values were in fact different, and we depend on the versions
 that were removed.
+
+Upstream-Status: Inappropriate [ota-specific]
 ---
  include/ata.h | 34 ++++++++++++++++++++++++++++++++++
  1 file changed, 34 insertions(+)
 
 diff --git a/include/ata.h b/include/ata.h
-index 3d870c973f..d8a0275630 100644
+index a7bcee6a64..6dc3456530 100644
 --- a/include/ata.h
 +++ b/include/ata.h
-@@ -67,9 +67,43 @@
+@@ -64,9 +64,43 @@
  #endif /* ATA_DEVICE */
  #define ATA_LBA		0xE0
  
@@ -60,6 +62,3 @@ index 3d870c973f..d8a0275630 100644
  #define ATAPI_CMD_INQUIRY 0x12
  #define ATAPI_CMD_REQ_SENSE 0x03
  #define ATAPI_CMD_READ_CAP 0x25
--- 
-2.25.1
-
