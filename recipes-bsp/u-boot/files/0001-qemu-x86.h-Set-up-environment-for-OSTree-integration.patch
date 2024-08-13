@@ -33,7 +33,7 @@ index adcc1c53bd..5fcedd93d1 100644
 +kernel_image=/bzImage
 +ramdisk_image=/initrd
 +ramdiskaddr=0x4000000
-+loadenv=if ext2load ide 0 $loadaddr /boot/loader/uEnv.txt; then env import -t $loadaddr $filesize; fi;
++loadenv=if load ide 0 $loadaddr /boot/loader/uEnv.txt; then env import -t $loadaddr $filesize; fi;
 diff --git a/include/configs/qemu-x86.h b/include/configs/qemu-x86.h
 index 9b0f5cedcd..6aee7c3e61 100644
 --- a/include/configs/qemu-x86.h
@@ -58,8 +58,8 @@ index 9b0f5cedcd..6aee7c3e61 100644
 +#undef CONFIG_BOOTCOMMAND
 +#define CONFIG_BOOTCOMMAND "ide reset; run loadenv;" \
 +			   "setenv bootargs $bootargs\" console=ttyS0 root=/dev/ram0 rw rootfstype=ext4 rootwait rootdelay=2 ostree_root=/dev/vda ramdisk_size=16384 \"; " \
-+			   "ext2load ide 0 $loadaddr \"/boot\"$kernel_image;" \
-+			   "ext2load ide 0 $ramdiskaddr \"/boot\"$ramdisk_image;" \
++			   "load ide 0 $loadaddr $kernel_image;" \
++			   "load ide 0 $ramdiskaddr $ramdisk_image;" \
 +			   "zboot $loadaddr - $ramdiskaddr $filesize"
 +
 + #endif	/* __CONFIG_H */
